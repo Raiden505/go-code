@@ -1,5 +1,6 @@
 import subprocess
 import json
+import os
 from tavily import TavilyClient
 client = TavilyClient("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")
 
@@ -111,6 +112,22 @@ TOOL_SCHEMAS = [
                 "additionalProperties": False
             }
         }
+    },
+
+    #List directory
+    {
+        "type": "function",
+        "name": "web_search",
+        "description": "Lists contents of the directory specified",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "directory": {
+                    "type": "string",
+                    "description": "Directory file path"
+                }
+            }
+        }
     }
 ]
 
@@ -200,3 +217,16 @@ def web_search(searchQuery: str, num_results: int) -> dict[str, any]:
         max_results=num_results
     )
     return response
+
+def list_directory(directory: str) -> dict[str, any]:
+    try:
+        list = os.listdir(directory)
+        return {
+            "success": True,
+            "list": list
+        }
+    except OSerror as error:
+        return {
+            "success": False,
+            "error": error.strerror
+        }
