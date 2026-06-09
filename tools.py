@@ -1,0 +1,202 @@
+import subprocess
+import json
+from tavily import TavilyClient
+client = TavilyClient("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")
+
+
+#Tool schemas
+TOOL_SCHEMAS = [
+    #Read
+    {
+        "type": "function",
+        "name": "read_file",
+        "description": "reads contents of a file",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "path": {
+                    "type": "string",
+                    "description": "file path to read"
+				},
+			},
+            "required": ["path"],
+            "additionalProperties": False
+		},
+	},
+
+    #Write
+    {
+        "type": "function",
+        "name": "write_file",
+        "description": "creates or overwrites content to file",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "path": {
+                    "type": "string",
+                    "description": "file path to write to"
+                },
+                "content": {
+                    "type": "string",
+                    "description": "content to write to file"
+                }
+            },
+            "required": ["path", "content"],
+            "additionalProperties": False
+        }
+    },
+
+    #Edit
+    {
+        "type": "function",
+        "name": "edit_file",
+        "description": "finds and replaces text",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "path": {
+                    "type": "string",
+                    "description": "file path to edit at"
+                },
+                "find": {
+                    "type": "string",
+                    "description": "content in the file to look for, must match exactly including indentation"
+                },
+                "replace_content": {
+                    "type": "string",
+                    "description": "content to write to file"
+                }
+            },
+            "required": ["path", "find", "replace-content"],
+            "additionalProperties": False
+        }
+    },
+
+    #Shell_commands
+    {
+        "type": "function",
+        "name": "shell_command",
+        "description": "executes shell commands in a terminal or shell",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "command": {
+                    "type": "string",
+                    "description": "exact shell command to be ran on the computer's terminal/shell"
+                },
+            },
+            "required": ["command"],
+            "additionalProperties": False
+        }
+    },
+
+    #Web search
+    {
+        "type": "function",
+        "name": "web_search",
+        "description": "searches the live internet for accurate up-to-date information, documentation, code examples or news",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "Search query to be searched for"
+                },
+                "num_results": {
+                    "type": "integer",
+                    "description": "The number of search results to return",
+                    "default": 5,
+                },
+                "required": ["query"],
+                "additionalProperties": False
+            }
+        }
+    }
+]
+
+
+#Tool implementation
+
+#read file
+def read_file(path: str) -> dict[str, any]:
+    """Read a file and return its contents"""
+    try:
+        with open(path, 'r') as f:
+            content = f.read()
+        return {
+            "success": True,
+            "content": content
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
+    
+#write to file
+def write_file(path: str, content: str) -> dict[str, any]:
+    """Create and write, or overwrite a file"""
+    try:
+        with open(path, 'w') as f:
+            f.write(content)
+        return {
+            "success": True,
+            "message": "Sucessfully written"
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
+    
+#edit file
+def edit_file(path: str, find: str, replace_content: str) -> dict[str, any]:
+    try:
+        with open(path, 'r') as f:
+            file_content = f.read()
+        
+        if find not in file_content:
+            return {
+                "success": False,
+                "error": f"Could not find exact text block in {path}. Make sure argument matches the files indentation and spacing perfectly"
+            }
+        
+        updated_content = file_content.replace(find, replace_content)
+        with open(path, 'w') as f:
+            f.write(updated_content)
+
+        return {
+            "success": True,
+            "message": "Successfully edited"
+        }
+
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"failed to edit file: {str(e)}"
+        }
+
+#shell command
+def shell_command(command: str) -> dict[str, any]:
+    pipe = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text = True)
+    stdout, stderr = pipe.communicate()
+    if stderr:
+        return {
+            "success": False,
+            "output": stdout,
+            "error": stderr,
+        }
+    else:
+        return {
+            "success": True,
+            "output": stdout
+        }
+
+#web_search
+def web_search(searchQuery: str, num_results: int) -> dict[str, any]:
+    response = client.search(
+        query=searchQuery,
+        search_depth="advanced",
+        max_results=num_results
+    )
+    return response
