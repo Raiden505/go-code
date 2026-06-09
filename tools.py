@@ -1,8 +1,11 @@
 import subprocess
 import json
 import os
+from dotenv import load_dotenv
 from tavily import TavilyClient
-client = TavilyClient("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")
+
+load_dotenv()
+client = TavilyClient(os.getenv("TAVILY_API_KEY"))
 
 
 #Tool schemas
@@ -68,7 +71,7 @@ TOOL_SCHEMAS = [
                     "description": "content to write to file"
                 }
             },
-            "required": ["path", "find", "replace-content"],
+            "required": ["path", "find", "replace_content"],
             "additionalProperties": False
         }
     },
@@ -99,7 +102,7 @@ TOOL_SCHEMAS = [
         "parameters": {
             "type": "object",
             "properties": {
-                "query": {
+                "searchQuery": {
                     "type": "string",
                     "description": "Search query to be searched for"
                 },
@@ -107,17 +110,17 @@ TOOL_SCHEMAS = [
                     "type": "integer",
                     "description": "The number of search results to return",
                     "default": 5,
-                },
-                "required": ["query"],
-                "additionalProperties": False
-            }
+                }
+            },
+            "required": ["searchQuery"],
+            "additionalProperties": False
         }
     },
 
     #List directory
     {
         "type": "function",
-        "name": "web_search",
+        "name": "list_directory",
         "description": "Lists contents of the directory specified",
         "parameters": {
             "type": "object",
@@ -126,7 +129,9 @@ TOOL_SCHEMAS = [
                     "type": "string",
                     "description": "Directory file path"
                 }
-            }
+            },
+            "required": ["directory"],
+            "additionalProperties": False
         }
     }
 ]
@@ -197,16 +202,18 @@ def edit_file(path: str, find: str, replace_content: str) -> dict[str, any]:
 def shell_command(command: str) -> dict[str, any]:
     pipe = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text = True)
     stdout, stderr = pipe.communicate()
-    if stderr:
+    exit_code = pipe.returncode
+    if exit_code != 0:
         return {
             "success": False,
             "output": stdout,
-            "error": stderr,
+            "diagnostic": stderr,
         }
     else:
         return {
             "success": True,
-            "output": stdout
+            "output": stdout,
+            "diagnostic": stderr
         }
 
 #web_search
@@ -225,7 +232,7 @@ def list_directory(directory: str) -> dict[str, any]:
             "success": True,
             "list": list
         }
-    except OSerror as error:
+    except OSError as error:
         return {
             "success": False,
             "error": error.strerror
