@@ -13,125 +13,137 @@ TOOL_SCHEMAS = [
     #Read
     {
         "type": "function",
-        "name": "read_file",
-        "description": "reads contents of a file",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "path": {
-                    "type": "string",
-                    "description": "file path to read"
-				},
-			},
-            "required": ["path"],
-            "additionalProperties": False
-		},
-	},
+        "function": {
+            "name": "read_file",
+            "description": "reads contents of a file",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "file path to read"
+                    }
+                },
+                "required": ["path"],
+                "additionalProperties": False
+            }
+        }
+    },
 
     #Write
     {
         "type": "function",
-        "name": "write_file",
-        "description": "creates or overwrites content to file",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "path": {
-                    "type": "string",
-                    "description": "file path to write to"
+        "function": {
+            "name": "write_file",
+            "description": "creates or overwrites content to file",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "file path to write to"
+                    },
+                    "content": {
+                        "type": "string",
+                        "description": "content to write to file"
+                    }
                 },
-                "content": {
-                    "type": "string",
-                    "description": "content to write to file"
-                }
-            },
-            "required": ["path", "content"],
-            "additionalProperties": False
+                "required": ["path", "content"],
+                "additionalProperties": False
+            }
         }
     },
 
     #Edit
     {
         "type": "function",
-        "name": "edit_file",
-        "description": "finds and replaces text",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "path": {
-                    "type": "string",
-                    "description": "file path to edit at"
+        "function": {
+            "name": "edit_file",
+            "description": "finds and replaces text",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "file path to edit at"
+                    },
+                    "find": {
+                        "type": "string",
+                        "description": "content in the file to look for, must match exactly including indentation"
+                    },
+                    "replace_content": {
+                        "type": "string",
+                        "description": "content to write to file"
+                    }
                 },
-                "find": {
-                    "type": "string",
-                    "description": "content in the file to look for, must match exactly including indentation"
-                },
-                "replace_content": {
-                    "type": "string",
-                    "description": "content to write to file"
-                }
-            },
-            "required": ["path", "find", "replace_content"],
-            "additionalProperties": False
+                "required": ["path", "find", "replace_content"],
+                "additionalProperties": False
+            }
         }
     },
 
     #Shell_commands
     {
         "type": "function",
-        "name": "shell_command",
-        "description": "executes shell commands in a terminal or shell",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "command": {
-                    "type": "string",
-                    "description": "exact shell command to be ran on the computer's terminal/shell"
+        "function": {
+            "name": "shell_command",
+            "description": "executes shell commands in a terminal or shell",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "command": {
+                        "type": "string",
+                        "description": "exact shell command to be ran on the computer's terminal/shell"
+                    }
                 },
-            },
-            "required": ["command"],
-            "additionalProperties": False
+                "required": ["command"],
+                "additionalProperties": False
+            }
         }
     },
 
     #Web search
     {
         "type": "function",
-        "name": "web_search",
-        "description": "searches the live internet for accurate up-to-date information, documentation, code examples or news",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "searchQuery": {
-                    "type": "string",
-                    "description": "Search query to be searched for"
+        "function": {
+            "name": "web_search",
+            "description": "searches the live internet for accurate up-to-date information, documentation, code examples or news",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "searchQuery": {
+                        "type": "string",
+                        "description": "Search query to be searched for"
+                    },
+                    "num_results": {
+                        "type": "integer",
+                        "description": "The number of search results to return",
+                        "default": 5
+                    }
                 },
-                "num_results": {
-                    "type": "integer",
-                    "description": "The number of search results to return",
-                    "default": 5,
-                }
-            },
-            "required": ["searchQuery"],
-            "additionalProperties": False
+                "required": ["searchQuery"],
+                "additionalProperties": False
+            }
         }
     },
 
     #List directory
     {
         "type": "function",
-        "name": "list_directory",
-        "description": "Lists contents of the directory specified",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "directory": {
-                    "type": "string",
-                    "description": "Directory file path"
-                }
-            },
-            "required": ["directory"],
-            "additionalProperties": False
+        "function": {
+            "name": "list_directory",
+            "description": "Lists contents of the directory specified",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "directory": {
+                        "type": "string",
+                        "description": "Directory file path"
+                    }
+                },
+                "required": ["directory"],
+                "additionalProperties": False
+            }
         }
     }
 ]
