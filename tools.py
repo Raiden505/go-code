@@ -249,3 +249,19 @@ def list_directory(directory: str) -> dict[str, any]:
             "success": False,
             "error": error.strerror
         }
+    
+available_function = {
+    "read_file": read_file,
+    "write_file": write_file,
+    "edit_file": edit_file,
+    "shell_command": shell_command,
+    "web_search": web_search,
+    "list_directory": list_directory
+}
+
+def execute_tool_call(tool_call):
+    function_name = tool_call.function.name
+    function_to_call = available_function[function_name]
+    function_args = json.loads(tool_call.function.arguments)
+
+    return function_to_call(**function_args)
