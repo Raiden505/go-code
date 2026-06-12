@@ -4,8 +4,10 @@ import os
 from dotenv import load_dotenv
 client = Groq()
 
+systemPromptFile = open("System Prompt.md", "r")
+systemPrompt = systemPromptFile.read()
 userPrompt = input("Enter prompt: ")
-messages = [{"role": "user","content": userPrompt}]
+messages = [{"role": "system", "content": systemPrompt}, {"role": "user","content": userPrompt}]
 
 iterations = 0
 while True:
