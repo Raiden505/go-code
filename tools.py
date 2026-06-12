@@ -261,7 +261,13 @@ available_function = {
 
 def execute_tool_call(tool_call):
     function_name = tool_call.function.name
-    function_to_call = available_function[function_name]
+    try:
+        function_to_call = available_function[function_name]
+    except Exception as e:
+        return {
+            "success": False,
+            "error": "Requested tool " + function_name + " doesn't exist in the tool definitions. Refer to tools schema" 
+        }
     function_args = json.loads(tool_call.function.arguments)
 
     return function_to_call(**function_args)
