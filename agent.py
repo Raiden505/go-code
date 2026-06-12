@@ -4,17 +4,23 @@ import os
 from dotenv import load_dotenv
 client = Groq()
 
-messages = [{"role": "user","content": "make a new file called hello.txt and write the word 'hello' in it"}]
+userPrompt = input("Enter prompt: ")
+messages = [{"role": "user","content": userPrompt}]
 
-response = client.chat.completions.create(
-    model="openai/gpt-oss-120b",
-    messages=messages,
-    tools=tools.TOOL_SCHEMAS
-)
-
-messages.append(response.choices[0].message)
-
-if response.choices[0].message.tool_calls:
+iterations = 0
+while True:
+    response = client.chat.completions.create(
+        model="openai/gpt-oss-120b",
+        messages=messages,
+        tools=tools.TOOL_SCHEMAS
+    )
+    messages.append(response.choices[0].message)
+    iterations+=1
+    if response.choices[0].finish_reason == "stop":
+        break
+    if iterations >= 100:
+        break
+    print(response.choices[0].message.reasoning)
     for tool_call in response.choices[0].message.tool_calls:
         function_response = tools.execute_tool_call(tool_call)
         messages.append({
@@ -23,9 +29,5 @@ if response.choices[0].message.tool_calls:
             "name": tool_call.function.name,
             "content": str(function_response)
         })
-    final = client.chat.completions.create(
-        model="openai/gpt-oss-120b",
-        messages=messages
-    )
-    
-    print(final.choices[0].message)
+
+print("finished")
